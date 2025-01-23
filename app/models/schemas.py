@@ -4,8 +4,7 @@ from typing import Optional, List, Dict
 
 class CodeAnalysisRequest(BaseModel):
     code: str
-    file_type: str
-    context: str | None
+    context: Optional[str] = None
 
 
 class LogAnalysisRequest(BaseModel):
