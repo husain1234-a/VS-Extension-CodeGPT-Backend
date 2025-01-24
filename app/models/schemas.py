@@ -22,3 +22,10 @@ class AIResponse(BaseModel):
     content: str
     suggestions: Optional[List[str]] = None
     code_snippets: Optional[List[Dict[str, str]]] = None
+
+
+class ErrorDetail(BaseModel):
+    error_type: str
+    message: str
+    line_number: Optional[int]
+    suggestion: str

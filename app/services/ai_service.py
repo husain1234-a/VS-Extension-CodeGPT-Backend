@@ -39,10 +39,11 @@ class AIService:
         ```
         {"Context: " + context if context else ""}
         
-        Provide:
-        1. Code explanation
-        2. Potential issues
-        3. Optimization suggestions
+        Please provide:
+            1. Code structure insights
+            2. Potential improvements
+            3. Best practices recommendations
+            4. Specific code quality suggestions
         """
 
     def _build_log_analysis_prompt(self, logs: str, context: str = None) -> str:
@@ -54,10 +55,11 @@ class AIService:
         ```
         {"Context: " + context if context else ""}
         
-        Provide:
-        1. Log analysis
-        2. Identified issues
-        3. Recommendations
+        Please provide:
+            1. Potential root causes
+            2. Specific debugging steps
+            3. Recommended fixes
+            4. Best practices to prevent similar issues
         """
 
     def _parse_ai_response(self, response) -> AIResponse:
