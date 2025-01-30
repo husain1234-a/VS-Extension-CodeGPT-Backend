@@ -67,6 +67,7 @@ async def debug_logs(request: LogAnalysisRequest):
             response = await ai_service.analyze_logs(
                 logs=logs, context=enhanced_context
             )
+            # print("log service used 111111111111",response)
 
             if not response or not response.content:
                 raise HTTPException(

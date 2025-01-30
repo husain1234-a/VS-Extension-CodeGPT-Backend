@@ -5,6 +5,7 @@ from typing import Optional, List, Dict
 class CodeAnalysisRequest(BaseModel):
     code: str
     context: Optional[str] = None
+    user_prompt: Optional[str] = None
 
 
 class LogAnalysisRequest(BaseModel):
@@ -12,12 +13,14 @@ class LogAnalysisRequest(BaseModel):
     context: Optional[str] = ""
     type: str = "terminal_logs"
     format: str = "text"
+    user_prompt: Optional[str] = None
 
 
 class RefactorRequest(BaseModel):
     code: str
     file_type: str
     context: list | None
+    user_prompt: Optional[str] = None
 
 
 class AIResponse(BaseModel):
