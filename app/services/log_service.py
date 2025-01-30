@@ -2,6 +2,7 @@ import re
 from typing import List, Dict
 from app.models.schemas import ErrorDetail
 from datetime import datetime
+from typing import Optional
 
 
 class LogService:

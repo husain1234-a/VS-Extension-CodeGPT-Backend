@@ -80,6 +80,7 @@ class AIService:
             2. Specific debugging steps
             3. Recommended fixes
             4. Best practices to prevent similar issues
+            5. Provide me updated code to address the issue
         """
 
     def _parse_ai_response(self, response) -> AIResponse:

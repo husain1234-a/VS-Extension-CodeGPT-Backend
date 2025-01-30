@@ -9,7 +9,9 @@ class CodeAnalysisRequest(BaseModel):
 
 class LogAnalysisRequest(BaseModel):
     logs: str
-    context: str | None
+    context: Optional[str] = ""
+    type: str = "terminal_logs"
+    format: str = "text"
 
 
 class RefactorRequest(BaseModel):
