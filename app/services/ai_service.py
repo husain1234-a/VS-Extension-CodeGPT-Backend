@@ -71,12 +71,20 @@ class AIService:
         3. Best practices recommendations
         4. Specific code quality suggestions
         """
-
+        
         if user_prompt:
-            base_prompt += f"\n\nUser's Specific Request:\n{user_prompt}"
-            base_prompt += "\n\nPlease address the user's specific request while also considering the default analysis tasks where relevant."
-
-        return base_prompt
+            print(f"Received user prompt: {user_prompt}")
+            # If user prompt exists, create a custom analysis prompt
+            return f"""You are an expert consider this user prompt: {user_prompt}
+            analyze the following code:
+            ```
+            {code}
+            ```
+            {"Context: " + context if context else ""}
+            """
+        
+        # Return base prompt if no user prompt provided
+        return base_prompt.strip()
 
     def _build_log_analysis_prompt(
         self, logs: str, context: str = None, user_prompt: str = None

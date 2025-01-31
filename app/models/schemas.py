@@ -9,6 +9,7 @@ class CodeAnalysisRequest(BaseModel):
 
 
 class LogAnalysisRequest(BaseModel):
+    code:str
     logs: str
     context: Optional[str] = ""
     type: str = "terminal_logs"
