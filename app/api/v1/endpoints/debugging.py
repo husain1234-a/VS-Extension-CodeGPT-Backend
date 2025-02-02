@@ -1,9 +1,10 @@
+import os
+from typing import Optional
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import LogAnalysisRequest, AIResponse
+from app.models.ai_response import AIResponse
 from app.services.ai_service import AIService
 from app.services.log_service import LogService
-from typing import Optional
-import os
+from app.models.log_analysis_request import LogAnalysisRequest
 
 router = APIRouter()
 ai_service = AIService()
@@ -18,14 +19,12 @@ async def read_log_file(file_path: str) -> Optional[str]:
                 return f.read()
         return None
     except Exception as e:
-        print(f"Error reading log file: {str(e)}")
         return None
 
 
 @router.post("/debug", response_model=AIResponse)
 async def debug_logs(request: LogAnalysisRequest):
     try:
-        # Handle log input (string or file path)
         logs = request.logs
         if isinstance(logs, str) and os.path.exists(logs):
             file_content = await read_log_file(logs)
@@ -39,11 +38,9 @@ async def debug_logs(request: LogAnalysisRequest):
         if not logs or not logs.strip():
             raise HTTPException(status_code=400, detail="No logs provided for analysis")
 
-        # Use LogService to analyze logs first
         try:
             log_analysis = log_service.analyze_logs(logs)
 
-            # Enhance the context with LogService analysis
             enhanced_context = {
                 "user_context": request.context,
                 "log_analysis": {
@@ -63,11 +60,9 @@ async def debug_logs(request: LogAnalysisRequest):
                 },
             }
 
-            # Send enhanced analysis to AI service
             response = await ai_service.analyze_logs(
                 logs=logs, context=enhanced_context
             )
-            # print("log service used 111111111111",response)
 
             if not response or not response.content:
                 raise HTTPException(
@@ -77,13 +72,10 @@ async def debug_logs(request: LogAnalysisRequest):
             return response
 
         except Exception as log_error:
-            print(f"LogService analysis failed: {str(log_error)}")
-            # Fall back to basic AI analysis if LogService fails
             response = await ai_service.analyze_logs(logs=logs, context=request.context)
             return response
 
     except HTTPException as he:
         raise he
     except Exception as e:
-        print(f"Error analyzing logs: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to analyze logs: {str(e)}")

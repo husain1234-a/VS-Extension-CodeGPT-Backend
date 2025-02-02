@@ -1,11 +1,24 @@
+import re
 import ast
 from typing import Dict, Any, List
-import re
 
 
 class CodeService:
     @staticmethod
     def parse_code(code: str) -> ast.AST:
+        """
+        Parses a string of Python code into an Abstract Syntax Tree (AST).
+
+        Args:
+            code (str): A string representing the Python code to parse.
+
+        Returns:
+            ast.AST: The root of the AST tree representing the parsed code.
+
+        Raises:
+            Exception: If there is a syntax error in the provided code.
+        """
+
         try:
             return ast.parse(code)
         except SyntaxError as e:
@@ -13,6 +26,19 @@ class CodeService:
 
     @staticmethod
     def analyze_structure(tree: ast.AST) -> Dict[str, Any]:
+        """
+        Analyzes the structure of an Abstract Syntax Tree (AST) representing Python code.
+
+        The analysis includes a count of imports, functions, classes, and the complexity of the code.
+
+        Args:
+            tree (ast.AST): The root of the AST tree representing the Python code to analyze.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the analysis of the code structure.
+
+        """
+
         analysis = {"imports": [], "functions": [], "classes": [], "complexity": 0}
 
         for node in ast.walk(tree):
@@ -43,6 +69,20 @@ class CodeService:
 
     @staticmethod
     def refactor_code(code: str, refactor_type: str) -> str:
+        """
+        Refactors the given code according to the specified type.
+
+        Args:
+            code (str): The code to refactor.
+            refactor_type (str): The type of refactoring to perform, either "format" or "optimize_imports".
+
+        Returns:
+            str: The refactored code.
+
+        Raises:
+            ValueError: If refactor_type is not "format" or "optimize_imports".
+        """
+
         if refactor_type == "format":
             return CodeService._format_code(code)
         elif refactor_type == "optimize_imports":
@@ -52,6 +92,19 @@ class CodeService:
 
     @staticmethod
     def _format_code(code: str) -> str:
+        """
+        Format the given code according to PEP 8 conventions.
+
+        Args:
+            code (str): The code to format.
+
+        Returns:
+            str: The formatted code.
+
+        Raises:
+            Exception: If code formatting fails.
+        """
+
         try:
             tree = ast.parse(code)
             return ast.unparse(tree)
@@ -60,6 +113,18 @@ class CodeService:
 
     @staticmethod
     def _optimize_imports(code: str) -> str:
+        """
+        Reorders imports in the given code according to PEP 8 conventions.
+
+        Args:
+            code (str): The code to reorder imports in.
+
+        Returns:
+            str: The code with reordered imports.
+
+        Raises:
+            Exception: If code analysis fails.
+        """
         try:
             tree = ast.parse(code)
             imports = []

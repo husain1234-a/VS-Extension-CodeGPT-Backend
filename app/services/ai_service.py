@@ -1,9 +1,10 @@
+import logging
+from typing import Optional
 from fastapi import HTTPException
 import google.generativeai as genai
 from app.core.config import settings
-from app.models.schemas import AIResponse
-import logging
-from typing import Optional
+from app.models.ai_response import AIResponse
+
 
 class AIService:
     def __init__(self):
@@ -16,11 +17,7 @@ class AIService:
     ) -> AIResponse:
         try:
             prompt = self._build_code_analysis_prompt(code, context, user_prompt)
-            print(
-                f"Received code analysis request: {code} with context: {context} and user prompt: {user_prompt}"
-            )
             response = await self.model.generate_content_async(prompt)
-            print(f"Code analysis response: {response}")
             return self._parse_ai_response(response)
         except Exception as e:
             self.logger.error(f"Error analyzing code: {str(e)}")
@@ -36,20 +33,14 @@ class AIService:
         try:
             if isinstance(logs, list):
                 logs = "\n".join(logs)
-
             if isinstance(context, (dict, list)):
                 context = ", ".join(
                     [f"{k}: {v}" for k, v in context.items()]
                     if isinstance(context, dict)
                     else [str(item) for item in context]
                 )
-
-            prompt = self._build_log_analysis_prompt(logs, context, user_prompt,code)
-            print(
-                f"Received log analysis request: {logs} with context: {context} and user prompt: {user_prompt} and code: {code}"
-            )
+            prompt = self._build_log_analysis_prompt(logs, context, user_prompt, code)
             response = await self.model.generate_content_async(prompt)
-            print(f"Log analysis response: {response}")
             return self._parse_ai_response(response)
         except Exception as e:
             self.logger.error(f"Error analyzing logs: {str(e)}")
@@ -72,10 +63,7 @@ class AIService:
         3. Best practices recommendations
         4. Specific code quality suggestions
         """
-
         if user_prompt:
-            print(f"Received user prompt: {user_prompt}")
-            # If user prompt exists, create a custom analysis prompt
             return f"""You are an expert consider this user prompt: {user_prompt}
             analyze the following code:
             ```
@@ -83,8 +71,6 @@ class AIService:
             ```
             {"Context: " + context if context else ""}
             """
-
-        # Return base prompt if no user prompt provided
         return base_prompt.strip()
 
     def _build_log_analysis_prompt(
@@ -109,8 +95,8 @@ class AIService:
                 prompt += f"\nRelated code:\n```\n{code}\n```"
             if context:
                 prompt += f"\nContext: {context}"
+            prompt += "based on code and logs give updated code"
             return prompt
-
         prompt = f"""
         You are an expert in debugging API logs and identifying issues.
         
@@ -126,17 +112,14 @@ class AIService:
         4. Best practices to prevent similar issues
         5. Provide updated code to address the issue
         """.strip()
-
         if code:
             prompt += f"\n\nRelated code:\n```\n{code}\n```"
         if context:
             prompt += f"\n\nContext: {context}"
-
         return prompt
 
     def _parse_ai_response(self, response) -> AIResponse:
         content = response.text
-        print(f"Parsing AI response: {content}")
         return AIResponse(
             content=content,
             suggestions=self._extract_suggestions(content),
@@ -148,7 +131,6 @@ class AIService:
         """
         Extracts relevant context from the response that might be useful for future interactions.
         """
-        # Extract key points and insights from the response
         key_points = []
         lines = content.split("\n")
         for line in lines:
@@ -163,7 +145,6 @@ class AIService:
                 ]
             ):
                 key_points.append(line.strip())
-
         return "\n".join(key_points) if key_points else None
 
     def _extract_suggestions(self, content: str) -> list:
@@ -173,7 +154,6 @@ class AIService:
         """
         suggestions = []
         lines = content.split("\n")
-
         suggestion_keywords = [
             "suggest",
             "recommend",
@@ -182,24 +162,18 @@ class AIService:
             "should",
             "try",
         ]
-
         for i, line in enumerate(lines):
             line = line.strip()
             if not line:
                 continue
-
             if line[0].isdigit() and len(line) > 2 and line[1] == ".":
                 suggestions.append(line[2:].strip())
                 continue
-
             if line.startswith(("•", "-", "*")):
                 suggestions.append(line[1:].strip())
                 continue
-
             if any(keyword in line.lower() for keyword in suggestion_keywords):
                 suggestions.append(line)
-
-        print(f"Extracted suggestions: {suggestions}")
         return suggestions
 
     def _extract_code_snippets(self, content: str) -> list:
@@ -232,10 +206,8 @@ class AIService:
                     if language_spec:
                         current_language = language_spec.lower()
                 continue
-
             if in_code_block:
                 current_snippet.append(line)
-
         if current_snippet:
             snippets.append(
                 {
@@ -243,6 +215,4 @@ class AIService:
                     "language": current_language or "text",
                 }
             )
-
-        print(f"Extracted code snippets: {snippets}")
         return snippets
